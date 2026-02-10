@@ -218,14 +218,14 @@ const RepLeads = () => {
               />
             </motion.div>
 
-            {/* Claimed Leads */}
-            <motion.div variants={itemVariants}>
-              <ClaimedLeadsSection leads={claimedLeads} />
-            </motion.div>
-
             {/* Emails Sent Table */}
             <motion.div variants={itemVariants}>
               <EmailsSentTable leads={repLeads} />
+            </motion.div>
+
+            {/* Claimed Leads */}
+            <motion.div variants={itemVariants}>
+              <ClaimedLeadsSection leads={claimedLeads} />
             </motion.div>
           </motion.div>
         )}
