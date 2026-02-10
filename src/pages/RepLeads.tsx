@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, BarChart3, ChevronDown, ChevronRight, Mail, Reply, Clock, Forward, Users } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, ChevronDown, ChevronRight, Mail, Reply, Clock, Forward, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useLeads } from "@/hooks/useLeads";
 import type { Lead } from "@/hooks/useLeads";
+import EmailsSentTable from "@/components/rep/EmailsSentTable";
 
 import hardikAvatar from "@/assets/avatars/hardik.png";
 import namanAvatar from "@/assets/avatars/naman.png";
@@ -253,11 +254,11 @@ const RepLeads = () => {
               </Card>
             </div>
 
-            {/* Expandable sections */}
+            {/* Claimed Leads */}
             <Section label="Claimed Leads" icon={Users} count={claimedLeads.length} leads={claimedLeads} defaultOpen />
-            <Section label="Emails Sent — Reply Received" icon={Reply} count={repliedLeads.length} leads={repliedLeads} showEmail variant="success" />
-            <Section label="Emails Sent — Reply Awaited" icon={Clock} count={awaitingLeads.length} leads={awaitingLeads} showEmail variant="warning" />
-            <Section label="Emails Sent — Follow-up Sent" icon={Forward} count={followUpLeads.length} leads={followUpLeads} showEmail variant="info" />
+
+            {/* Emails Sent Table */}
+            <EmailsSentTable leads={repLeads} />
           </motion.div>
         )}
       </div>
