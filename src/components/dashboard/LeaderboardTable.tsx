@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { Trophy } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import type { Lead } from "@/hooks/useLeads";
 import { AvatarImage } from "@/components/ui/avatar";
 
@@ -81,8 +81,8 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
       <Card className="glass-card metric-shadow">
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" />
-            Rep Leaderboard
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Rep Stats
           </CardTitle>
         </CardHeader>
         <CardContent className="flex h-[250px] items-center justify-center">
@@ -97,15 +97,14 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
       <Card className="glass-card metric-shadow">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" />
-            Rep Leaderboard
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Rep Stats
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow className="border-border/50 hover:bg-transparent">
-                <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead>Rep</TableHead>
                 <TableHead className="text-right">Claimed</TableHead>
                 <TableHead className="text-right">Sent</TableHead>
@@ -123,15 +122,6 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
                   transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
                   className="border-border/30 hover:bg-accent/50 transition-colors"
                 >
-                  <TableCell className="text-center">
-                    {index < 3 ? (
-                      <Badge variant="outline" className={`text-xs font-bold ${RANK_COLORS[index]}`}>
-                        {index + 1}
-                      </Badge>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">{index + 1}</span>
-                    )}
-                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8 border-2 border-border">
