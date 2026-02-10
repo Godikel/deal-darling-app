@@ -9,7 +9,7 @@ interface ClaimedPieChartProps {
 const COLORS = ["hsl(222.2, 47.4%, 11.2%)", "hsl(215.4, 16.3%, 76.9%)"];
 
 export function ClaimedPieChart({ leads }: ClaimedPieChartProps) {
-  const claimed = leads.filter((l) => l.assigned_to_email !== null).length;
+  const claimed = leads.filter((l) => l.status === "CLAIMED" || l.assigned_to_email !== null).length;
   const unclaimed = leads.length - claimed;
 
   const data = [
