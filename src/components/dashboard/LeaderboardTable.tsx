@@ -15,25 +15,31 @@ interface LeaderboardTableProps {
 
 interface LeaderboardEntry {
   email: string;
+  claimed: number;
   sent: number;
   replied: number;
+  followUp: number;
   total: number;
 }
 
 export function LeaderboardTable({ leads }: LeaderboardTableProps) {
   const assigned = leads.filter((l) => l.assigned_to_email);
-  const map = new Map<string, { sent: number; replied: number }>();
+  const map = new Map<string, { claimed: number; sent: number; replied: number; followUp: number }>();
 
   for (const lead of assigned) {
     const email = lead.assigned_to_email!;
-    const entry = map.get(email) || { sent: 0, replied: 0 };
+    const entry = map.get(email) || { claimed: 0, sent: 0, replied: 0, followUp: 0 };
+    entry.claimed++;
     if (lead.status === "SENT") entry.sent++;
     if (lead.status === "REPLIED") entry.replied++;
+    if (lead.status === "FOLLOW UP") entry.followUp++;
     map.set(email, entry);
   }
 
   const leaderboard: LeaderboardEntry[] = Array.from(map.entries())
-    .map(([email, { sent, replied }]) => ({ email, sent, replied, total: sent + replied }))
+    .map(([email, { claimed, sent, replied, followUp }]) => ({
+      email, claimed, sent, replied, followUp, total: sent + replied + followUp,
+    }))
     .sort((a, b) => b.total - a.total);
 
   if (leaderboard.length === 0) {
@@ -59,8 +65,10 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Rep</TableHead>
+              <TableHead className="text-right">Claimed</TableHead>
               <TableHead className="text-right">Sent</TableHead>
               <TableHead className="text-right">Replied</TableHead>
+              <TableHead className="text-right">Follow-ups</TableHead>
               <TableHead className="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
@@ -68,8 +76,10 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
             {leaderboard.map((entry) => (
               <TableRow key={entry.email}>
                 <TableCell className="font-medium">{entry.email}</TableCell>
+                <TableCell className="text-right">{entry.claimed}</TableCell>
                 <TableCell className="text-right">{entry.sent}</TableCell>
                 <TableCell className="text-right">{entry.replied}</TableCell>
+                <TableCell className="text-right">{entry.followUp}</TableCell>
                 <TableCell className="text-right font-semibold">{entry.total}</TableCell>
               </TableRow>
             ))}
