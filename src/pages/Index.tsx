@@ -7,6 +7,7 @@ import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ClaimedPieChart } from "@/components/dashboard/ClaimedPieChart";
 import { LeaderboardTable } from "@/components/dashboard/LeaderboardTable";
+import { RepBarChart } from "@/components/dashboard/RepBarChart";
 
 const Index = () => {
   const { data: leads = [], isLoading } = useLeads();
@@ -58,6 +59,10 @@ const Index = () => {
 
             <div className="grid gap-6 lg:grid-cols-2">
               <ClaimedPieChart leads={filtered} />
+              <RepBarChart leads={filtered} />
+            </div>
+
+            <div className="mt-6">
               <LeaderboardTable leads={filtered} />
             </div>
           </>
