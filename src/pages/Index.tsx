@@ -32,8 +32,8 @@ const Index = () => {
   const emailsSent = filtered.filter(
     (l) => l.status === "SENT" || l.last_contacted_at !== null
   ).length;
-  const replies = filtered.filter((l) => l.status === "REPLIED").length;
-  const followUps = filtered.filter((l) => l.status === "FOLLOW UP").length;
+  const replies = filtered.filter((l) => l.status === "REPLIED" || l.reply_received === true).length;
+  const followUps = filtered.filter((l) => l.status === "FOLLOW UP" || l.follow_up_sent_at !== null).length;
 
   return (
     <div className="min-h-screen bg-background">
