@@ -12,6 +12,19 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 import type { Lead } from "@/hooks/useLeads";
+import { AvatarImage } from "@/components/ui/avatar";
+
+import hardikAvatar from "@/assets/avatars/hardik.png";
+import namanAvatar from "@/assets/avatars/naman.png";
+import vanshikaAvatar from "@/assets/avatars/vanshika.png";
+import vivekAvatar from "@/assets/avatars/vivek.png";
+
+const AVATAR_MAP: Record<string, string> = {
+  "hardik.goel@betterplace.co.in": hardikAvatar,
+  "naman.taneja@betterplace.co.in": namanAvatar,
+  "vanshika.saxena@betterplace.co.in": vanshikaAvatar,
+  "vivek.rajalingam@betterplace.co.in": vivekAvatar,
+};
 
 interface LeaderboardTableProps {
   leads: Lead[];
@@ -122,6 +135,9 @@ export function LeaderboardTable({ leads }: LeaderboardTableProps) {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8 border-2 border-border">
+                        {AVATAR_MAP[entry.email] && (
+                          <AvatarImage src={AVATAR_MAP[entry.email]} alt={entry.email} />
+                        )}
                         <AvatarFallback className="text-xs font-semibold gradient-bg text-primary-foreground">
                           {getInitials(entry.email)}
                         </AvatarFallback>
