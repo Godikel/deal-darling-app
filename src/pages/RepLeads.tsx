@@ -1,14 +1,14 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronDown, ChevronRight, Mail, Reply, Clock, Forward, Users } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Mail, Reply, Forward, Users, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useLeads } from "@/hooks/useLeads";
 import type { Lead } from "@/hooks/useLeads";
 import EmailsSentTable from "@/components/rep/EmailsSentTable";
+import ClaimedLeadsSection from "@/components/rep/ClaimedLeadsSection";
 
 import hardikAvatar from "@/assets/avatars/hardik.png";
 import namanAvatar from "@/assets/avatars/naman.png";
@@ -22,132 +22,65 @@ const AVATAR_MAP: Record<string, string> = {
   "vivek.rajalingam@betterplace.co.in": vivekAvatar,
 };
 
-function LeadCard({ lead, showEmail }: { lead: Lead; showEmail?: boolean }) {
-  const [expanded, setExpanded] = useState(false);
-  const hasEmail = showEmail && lead.email_body;
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+} as const;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="border border-border/40 rounded-lg overflow-hidden bg-card/50"
-    >
-      <button
-        onClick={() => hasEmail && setExpanded(!expanded)}
-        className={`w-full text-left px-4 py-3 flex items-center justify-between gap-3 ${
-          hasEmail ? "cursor-pointer hover:bg-accent/30" : "cursor-default"
-        }`}
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="min-w-0">
-            <p className="text-sm font-medium truncate">{lead.company_name || "—"}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {lead.poc_name || "No POC"}{lead.poc_title ? ` · ${lead.poc_title}` : ""}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {lead.status && (
-            <Badge variant="outline" className="text-[10px]">
-              {lead.status}
-            </Badge>
-          )}
-          {hasEmail && (
-            <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
-          )}
-        </div>
-      </button>
-      <AnimatePresence>
-        {expanded && lead.email_body && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-3 pt-1 border-t border-border/30 space-y-1.5">
-              {lead.email_subject && (
-                <p className="text-xs font-medium text-foreground">
-                  <span className="text-muted-foreground">Subject:</span> {lead.email_subject}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {lead.email_body}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+  },
+} as const;
+
+const cardHover = {
+  rest: { scale: 1, boxShadow: "0 4px 24px -4px hsl(243 75% 59% / 0.08)" },
+  hover: {
+    scale: 1.03,
+    boxShadow: "0 8px 32px -4px hsl(243 75% 59% / 0.18)",
+    transition: { type: "spring" as const, stiffness: 400, damping: 20 },
+  },
+} as const;
+
+interface MetricCardProps {
+  icon: React.ElementType;
+  value: number;
+  label: string;
+  accentClass: string;
 }
 
-function Section({
-  label,
-  icon: Icon,
-  count,
-  leads,
-  showEmail,
-  variant = "default",
-  defaultOpen = false,
-}: {
-  label: string;
-  icon: React.ElementType;
-  count: number;
-  leads: Lead[];
-  showEmail?: boolean;
-  variant?: "default" | "success" | "warning" | "info";
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  const variantColors = {
-    default: "text-muted-foreground",
-    success: "text-emerald-600",
-    warning: "text-amber-600",
-    info: "text-blue-600",
-  };
-
+function MetricCard({ icon: Icon, value, label, accentClass }: MetricCardProps) {
   return (
-    <Card className="glass-card metric-shadow">
-      <button
-        onClick={() => leads.length > 0 && setOpen(!open)}
-        className={`w-full text-left px-5 py-4 flex items-center justify-between ${
-          leads.length > 0 ? "cursor-pointer" : "cursor-default"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          {leads.length > 0 ? (
-            open ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <span className="w-4" />
-          )}
-          <Icon className={`h-5 w-5 ${variantColors[variant]}`} />
-          <span className="text-sm font-semibold">{label}</span>
-        </div>
-        <Badge variant="secondary" className="font-mono text-xs px-2.5">
-          {count}
-        </Badge>
-      </button>
-      <AnimatePresence>
-        {open && leads.length > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-4 space-y-2 max-h-[400px] overflow-y-auto">
-              {leads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} showEmail={showEmail} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Card>
+    <motion.div variants={itemVariants} initial="rest" whileHover="hover" animate="rest">
+      <motion.div variants={cardHover}>
+        <Card className="glass-card metric-shadow p-5 flex items-center gap-4 overflow-hidden relative group">
+          <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${accentClass} transition-transform duration-300 group-hover:scale-110`}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <motion.p
+              className="text-3xl font-extrabold font-mono tracking-tight"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+            >
+              {value}
+            </motion.p>
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mt-0.5">
+              {label}
+            </p>
+          </div>
+          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors duration-500" />
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -181,84 +114,119 @@ const RepLeads = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8">
+      {/* Header */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="border-b border-border/50 bg-card/60 backdrop-blur-xl sticky top-0 z-10"
+      >
+        <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             <Link to="/">
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-accent/60 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 border-2 border-border">
-                {AVATAR_MAP[decodedEmail] && (
-                  <AvatarImage src={AVATAR_MAP[decodedEmail]} alt={decodedEmail} />
-                )}
-                <AvatarFallback className="text-sm font-semibold gradient-bg text-primary-foreground">
-                  {getInitials(decodedEmail)}
-                </AvatarFallback>
-              </Avatar>
+            <div className="flex items-center gap-3.5">
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.15 }}
+              >
+                <Avatar className="h-12 w-12 border-2 border-primary/20 ring-2 ring-primary/10 ring-offset-2 ring-offset-background">
+                  {AVATAR_MAP[decodedEmail] && (
+                    <AvatarImage src={AVATAR_MAP[decodedEmail]} alt={decodedEmail} />
+                  )}
+                  <AvatarFallback className="text-sm font-bold gradient-bg text-primary-foreground">
+                    {getInitials(decodedEmail)}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight">{displayName}</h1>
-                <p className="text-xs text-muted-foreground">{decodedEmail}</p>
+                <motion.h1
+                  className="text-xl font-extrabold tracking-tight"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {displayName}
+                </motion.h1>
+                <motion.p
+                  className="text-xs text-muted-foreground font-medium"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {decodedEmail}
+                </motion.p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Content */}
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading leads…</p>
+          <motion.div
+            className="flex items-center justify-center h-64"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex flex-col items-center gap-4">
+              <motion.div
+                className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <p className="text-sm text-muted-foreground font-medium">Loading leads…</p>
             </div>
-          </div>
+          </motion.div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="space-y-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
           >
-            {/* Summary cards */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-              <Card className="glass-card metric-shadow p-4 flex items-center gap-3">
-                <Users className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold font-mono">{claimedLeads.length}</p>
-                  <p className="text-xs text-muted-foreground">Claimed</p>
-                </div>
-              </Card>
-              <Card className="glass-card metric-shadow p-4 flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold font-mono">{emailsSent}</p>
-                  <p className="text-xs text-muted-foreground">Emails Sent</p>
-                </div>
-              </Card>
-              <Card className="glass-card metric-shadow p-4 flex items-center gap-3">
-                <Reply className="h-5 w-5 text-emerald-600" />
-                <div>
-                  <p className="text-2xl font-bold font-mono">{repliedLeads.length}</p>
-                  <p className="text-xs text-muted-foreground">Replied</p>
-                </div>
-              </Card>
-              <Card className="glass-card metric-shadow p-4 flex items-center gap-3">
-                <Forward className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-2xl font-bold font-mono">{followUpLeads.length}</p>
-                  <p className="text-xs text-muted-foreground">Follow-ups</p>
-                </div>
-              </Card>
-            </div>
+            {/* Metric cards */}
+            <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <MetricCard
+                icon={Users}
+                value={claimedLeads.length}
+                label="Claimed"
+                accentClass="bg-primary/10 text-primary"
+              />
+              <MetricCard
+                icon={Mail}
+                value={emailsSent}
+                label="Emails Sent"
+                accentClass="bg-primary/10 text-primary"
+              />
+              <MetricCard
+                icon={Reply}
+                value={repliedLeads.length}
+                label="Replied"
+                accentClass="bg-accent text-accent-foreground"
+              />
+              <MetricCard
+                icon={Forward}
+                value={followUpLeads.length}
+                label="Follow-ups"
+                accentClass="bg-accent text-accent-foreground"
+              />
+            </motion.div>
 
             {/* Claimed Leads */}
-            <Section label="Claimed Leads" icon={Users} count={claimedLeads.length} leads={claimedLeads} defaultOpen />
+            <motion.div variants={itemVariants}>
+              <ClaimedLeadsSection leads={claimedLeads} />
+            </motion.div>
 
             {/* Emails Sent Table */}
-            <EmailsSentTable leads={repLeads} />
+            <motion.div variants={itemVariants}>
+              <EmailsSentTable leads={repLeads} />
+            </motion.div>
           </motion.div>
         )}
       </div>
